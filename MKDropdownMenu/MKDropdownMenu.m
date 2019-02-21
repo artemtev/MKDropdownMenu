@@ -671,7 +671,18 @@ static UIImage *disclosureIndicatorImage = nil;
 }
 
 - (void)updateContainerHeight {
-    _heightConstraint.constant = self.contentHeight;
+    if ([self tableView:self.tableView numberOfRowsInSection:0] > 5) {
+        CGFloat rowHeight = 0;
+        if ([self.delegate respondsToSelector:@selector(dropdownMenu:rowHeightForComponent:)]) {
+            rowHeight = 40.0;
+        } else {
+            rowHeight = (rowHeight > 0) ? rowHeight : kDefaultRowHeight;
+        }
+
+        _heightConstraint.constant = 5*rowHeight;
+    } else {
+        _heightConstraint.constant = self.contentHeight;
+    }
     [self.containerView layoutIfNeeded];
 }
 
@@ -871,6 +882,16 @@ static const CGFloat kScrollViewBottomSpace = 5;
     CGRect frame = [containerView convertRect:self.menu.bounds fromView:self.menu];
     CGFloat topOffset = CGRectGetMaxY(frame);
     CGFloat contentHeight = self.controller.contentHeight;
+    if ([self.controller.tableView numberOfRowsInSection:0] > 5) {
+        CGFloat rowHeight = 0;
+        if ([self.controller.delegate respondsToSelector:@selector(dropdownMenu:rowHeightForComponent:)]) {
+            rowHeight = 40.0;
+        } else {
+            rowHeight = (rowHeight > 0) ? rowHeight : kDefaultRowHeight;
+        }
+        
+        contentHeight = 5*rowHeight;
+    }
     CGFloat contentY = topOffset - contentHeight - self.menu.frame.size.height;
     
     // Adjust scrollView + height
@@ -897,6 +918,7 @@ static const CGFloat kScrollViewBottomSpace = 5;
             if (_menu.adjustsContentInset) {
                 height = MAX(height, contentMaxY);
             }
+            
         }
         
         scrollViewAdjustBlock = ^{
@@ -1443,10 +1465,6 @@ static const CGFloat kScrollViewBottomSpace = 5;
 
 - (UIRectCorner)dropdownRoundedCorners {
     return self.contentViewController.roundedCorners;
-}
-
-- (CGSize)intrinsicContentSize {
-    return UILayoutFittingExpandedSize;
 }
 
 #pragma mark - Public Methods
