@@ -671,7 +671,8 @@ static UIImage *disclosureIndicatorImage = nil;
 }
 
 - (void)updateContainerHeight {
-    if ([self tableView:self.tableView numberOfRowsInSection:0] > 5) {
+    NSInteger neededNumberOfVisibleRows = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad ? 3 : 5;
+    if ([self tableView:self.tableView numberOfRowsInSection:0] > neededNumberOfVisibleRows) {
         CGFloat rowHeight = 0;
         if ([self.delegate respondsToSelector:@selector(dropdownMenu:rowHeightForComponent:)]) {
             rowHeight = 40.0;
@@ -679,7 +680,7 @@ static UIImage *disclosureIndicatorImage = nil;
             rowHeight = (rowHeight > 0) ? rowHeight : kDefaultRowHeight;
         }
 
-        _heightConstraint.constant = 5*rowHeight;
+        _heightConstraint.constant = neededNumberOfVisibleRows*rowHeight;
     } else {
         _heightConstraint.constant = self.contentHeight;
     }
